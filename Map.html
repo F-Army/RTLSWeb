@@ -1,0 +1,234 @@
+
+<html>
+<head>
+    <title id='Description'>RTLS
+    </title>
+    <link rel="stylesheet" href="leaflet/leaflet.css">
+    <script src="leaflet/leaflet.js"></script>
+    <link rel="stylesheet" href="tesi.css" type="text/css" />
+    <link rel="stylesheet" href="jqwidgets/styles/jqx.base.css" type="text/css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxcore.js"></script>
+    <script type="text/javascript" src="jqwidgets/jqxsplitter.js"></script>
+      <script type="text/javascript" src="jqwidgets/jqxtabs.js"></script>
+      <script type="text/javascript" src="jqwidgets/jqxdata.js"></script>
+       <script type="text/javascript" src="jqwidgets/jqxbuttons.js"></script>
+       <script type="text/javascript" src="jqwidgets/jqxscrollbar.js"></script>
+       <script type="text/javascript" src="jqwidgets/jqxmenu.js"></script>
+       <script type="text/javascript" src="jqwidgets/jqxgrid.js"></script>
+       <script type="text/javascript" src="jqwidgets/jqxgrid.selection.js"></script>
+       <link href="css/one-page-wonder.min.css" rel="stylesheet">
+       <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+       <link href="https://fonts.googleapis.com/css?family=Catamaran:100,200,300,400,500,600,700,800,900" rel="stylesheet">
+       <link href="https://fonts.googleapis.com/css?family=Lato:100,100i,300,300i,400,400i,700,700i,900,900i" rel="stylesheet">
+   <script type="text/javascript">
+       $(document).ready(function () {
+           $('#splitter').jqxSplitter({ width: '100%', height: '100%', panels: [{ size: '80%', min: 600 }, { size: '20%', min:250 }] });
+
+       });
+</script>
+
+<script type="text/javascript">
+function ConversionX(x) {
+  var AS=121;
+  var AD=420;
+  var ASM=43.139524;
+  var ADM=43.139667;
+  var test=0;
+  var result=(x-AS)*((ADM-ASM)/(AD-AS))+ASM;
+}
+function ConversionY(y) {
+  var BS=85;
+  var BD=5;
+  var BSM=13.069168;
+  var BDM=13.068557;
+  var test=0;
+  var result=(y-BD)*((BDM-BSM)/(BD-BS))+BSM;
+
+}
+</script>
+<script type="text/javascript">
+    var AnchorIcon = L.icon({
+  iconUrl: 'images/redanchor.png',
+  iconSize:     [20, 20], // size of the icon
+  iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
+  popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+</script>
+<script type="text/javascript">
+var DeviceIcon = L.icon({
+  iconUrl: 'images/marker-icon.png',
+
+  iconSize:     [20, 30], // size of the icon
+  iconAnchor:   [0, 0], // point of the icon which will correspond to marker's location
+  popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+</script>
+<script type="text/javascript">
+  $(document).ready(function () {
+        // prepare the data
+        var data = new Array();
+        var firstNames =
+        [
+            "Andrew", "Nancy", "Shelley", "Regina", "Yoshi", "Antoni", "Mayumi", "Ian", "Peter", "Lars", "Petra", "Martin", "Sven", "Elio", "Beate", "Cheryl", "Michael", "Guylene"
+        ];
+        var lastNames =
+        [
+            "Fuller", "Davolio", "Burke", "Murphy", "Nagase", "Saavedra", "Ohno", "Devling", "Wilson", "Peterson", "Winkler", "Bein", "Petersen", "Rossi", "Vileid", "Saylor", "Bjorn", "Nodier"
+        ];
+        var productNames =
+        [
+            "Black Tea", "Green Tea", "Caffe Espresso", "Doubleshot Espresso", "Caffe Latte", "White Chocolate Mocha", "Cramel Latte", "Caffe Americano", "Cappuccino", "Espresso Truffle", "Espresso con Panna", "Peppermint Mocha Twist"
+        ];
+        var priceValues =
+        [
+            "2.25", "1.5", "3.0", "3.3", "4.5", "3.6", "3.8", "2.5", "5.0", "1.75", "3.25", "4.0"
+        ];
+        for (var i = 0; i < 100; i++) {
+            var row = {};
+            var productindex = Math.floor(Math.random() * productNames.length);
+            var price = parseFloat(priceValues[productindex]);
+            var quantity = 1 + Math.round(Math.random() * 10);
+            row["firstname"] = firstNames[Math.floor(Math.random() * firstNames.length)];
+            row["lastname"] = lastNames[Math.floor(Math.random() * lastNames.length)];
+            row["productname"] = productNames[productindex];
+            row["price"] = price;
+            row["quantity"] = quantity;
+            row["total"] = price * quantity;
+            data[i] = row;
+        }
+        var source =
+        {
+            localdata: data,
+            datatype: "array"
+        };
+        var dataAdapter = new $.jqx.dataAdapter(source, {
+            loadComplete: function (data) { },
+            loadError: function (xhr, status, error) { }
+        });
+
+$('#jqxgrid').jqxGrid(
+{   height: 690,
+    width: 927,
+    source: dataAdapter,
+    columns: [
+      { text: 'First Name', datafield: 'firstname', width: 100 },
+      { text: 'Last Name', datafield: 'lastname', width: 100 },
+      { text: 'Product', datafield: 'productname', width: 180 },
+      { text: 'Quantity', datafield: 'quantity', width: 80, cellsalign: 'right' },
+      { text: 'Unit Price', datafield: 'price', width: 90, cellsalign: 'right' },
+      { text: 'Total', datafield: 'total', width: 100, cellsalign: 'right' }
+    ]
+});
+
+
+        $("#jqxgriddevice").jqxGrid(
+        {   height: 690,
+            width: 927,
+            source: dataAdapter,
+            columns: [
+              { text: 'First Name', datafield: 'firstname', width: 100 },
+              { text: 'Last Name', datafield: 'lastname', width: 100 },
+              { text: 'Product', datafield: 'productname', width: 180 },
+              { text: 'Quantity', datafield: 'quantity', width: 80, cellsalign: 'right' },
+              { text: 'Unit Price', datafield: 'price', width: 90, cellsalign: 'right', cellsformat: 'c2' },
+              { text: 'Total', datafield: 'total', width: 100, cellsalign: 'right', cellsformat: 'c2' }
+            ]
+        });
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#jqxTabs').jqxTabs({ width: 927, height: 750});
+    });
+</script>
+</head>
+<body>
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom ">
+      <div class="container">
+        <a class="navbar-brand" href="index.html">RTLS</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+      </div>
+    </nav>
+
+  </div>
+  <div id='bodymap'>
+    <div style="border: none" id='splitter'>
+        <div>
+          <div id="mapid">
+          <script>
+
+  var mymap = L.map("mapid").setView([67, 280], 2);
+  var bounds = [[0,0], [100,500]];
+  var image = L.imageOverlay('polo.jpg', bounds).addTo(mymap);
+  var x = 160;
+  var y = 55;
+  var devicemarker = L.marker([y, x], {icon: DeviceIcon}).addTo(mymap);
+  let i=0;
+
+  mymap.on('click', function(ev) {
+  alert(ev.latlng);
+ var anchormarker = L.marker(ev.latlng, {icon: AnchorIcon}).addTo(mymap);
+});
+  function Start(){
+    (function Loop(i) {
+      setTimeout(function () {
+        x=x+0.4;
+        y=y+0.15;
+        devicemarker.setLatLng([y, x]).update()
+        if (--i) {          // If i > 0, keep going
+          Loop(i);       // Call the loop again, and pass it the current value of i
+        }
+      }, 50); //tempo in millis
+    })(400); //numero di cicli
+  }
+</script>
+</div>
+<button type="button" name="start" onclick="Start();">Start</button>
+<script type="text/javascript">
+(function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function (message) {
+        if (typeof message == 'object') {
+            logger.innerHTML += (JSON && JSON.stringify ? JSON.stringify(message) : message) + '<br />';
+        } else {
+            logger.innerHTML += message + '<br />';
+        }
+    }
+})();
+</script>
+  </div>
+
+
+
+
+        <div>
+          <div id='jqxTabs'>
+              <ul style='margin-left: 20px;'>
+                  <li>Anchors</li>
+                  <li>Devices</li>
+
+              </ul>
+              <div>
+
+                <div id='jqxWidget' class="anchorgrid" >
+                    <div id="jqxgrid" class="anchorgrid"></div>
+                </div>
+              </div>
+              <div>
+                <div id='jqxWidget' class="devicegrid" >
+                    <div id="jqxgriddevice" class="devicegrid"></div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+    </div>
+  </div>
+    </body>
+</html>
